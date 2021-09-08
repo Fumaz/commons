@@ -1,5 +1,7 @@
 package dev.fumaz.commons.exception;
 
+import java.util.Optional;
+
 /**
  * A utility to deal with exceptions
  *
@@ -10,6 +12,36 @@ package dev.fumaz.commons.exception;
 public final class Exceptions {
 
     private Exceptions() {
+    }
+
+    /**
+     * Wraps a supplier so that it optionally returns a value instead of throwing an {@link Exception}
+     *
+     * @param supplier the supplier
+     * @param <T>      the type of the supplied object
+     * @return the optional result
+     */
+    public static <T> Optional<T> optional(ExceptionSupplier<T> supplier) {
+        try {
+            return Optional.of(supplier.get());
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Wraps a supplier so that it returns {@code null} instead of throwing an {@link Exception}
+     *
+     * @param supplier the supplier
+     * @param <T>      the type of the supplied object
+     * @return the object or null if an exception was thrown
+     */
+    public static <T> T orNull(ExceptionSupplier<T> supplier) {
+        try {
+            return supplier.get();
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**
