@@ -8,6 +8,8 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author Fumaz
@@ -45,6 +47,31 @@ public final class Enums {
     @Unmodifiable
     public static <T extends Enum<T>> List<T> toList(Class<T> enumType) {
         return ImmutableList.copyOf(enumType.getEnumConstants());
+    }
+
+    @NotNull
+    @Unmodifiable
+    public static <T extends Enum<T>> List<T> toList(Class<T> enumType, List<T> excluding) {
+        return toList(enumType)
+                .stream()
+                .filter(t -> !excluding.contains(t))
+                .collect(Collectors.toList());
+    }
+
+    @NotNull
+    @Unmodifiable
+    @SafeVarargs
+    public static <T extends Enum<T>> List<T> toList(Class<T> enumType, T... excluding) {
+        return toList(enumType, Arrays.asList(excluding));
+    }
+
+    @NotNull
+    @Unmodifiable
+    public static <T extends Enum<T>> List<T> toList(Class<T> enumType, Predicate<T> excluding) {
+        return toList(enumType)
+                .stream()
+                .filter(excluding)
+                .collect(Collectors.toList());
     }
 
     @Nullable
