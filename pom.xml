@@ -6,7 +6,7 @@
 
     <groupId>dev.fumaz</groupId>
     <artifactId>commons</artifactId>
-    <version>1.01</version>
+    <version>1.02</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -72,12 +72,6 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>22.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-text</artifactId>
-            <version>1.9</version>
-            <scope>provided</scope>
         </dependency>
         <!-- <dependency>
             <groupId>com.google.code.gson</groupId>

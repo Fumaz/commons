@@ -1,6 +1,6 @@
 package dev.fumaz.commons.text.figlet;
 
-import org.apache.commons.lang3.StringUtils;
+import dev.fumaz.commons.text.Strings;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -126,7 +126,7 @@ public class FigletRenderer {
 
     public List<String> renderLines(@NotNull String text) {
         return Arrays.stream(render(text).split("\n"))
-                .filter(line -> !StringUtils.isBlank(line))
+                .filter(line -> !Strings.isBlank(line))
                 .collect(Collectors.toList());
     }
 

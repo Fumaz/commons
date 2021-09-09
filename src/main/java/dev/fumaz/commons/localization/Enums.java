@@ -1,7 +1,7 @@
 package dev.fumaz.commons.localization;
 
 import com.google.common.collect.ImmutableList;
-import org.apache.commons.text.WordUtils;
+import dev.fumaz.commons.text.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Unmodifiable;
@@ -22,7 +22,7 @@ public final class Enums {
     }
 
     public static String getDisplayName(Enum<?> object) {
-        return WordUtils.capitalizeFully(object.name().replace("_", " "));
+        return Strings.capitalizeFully(object.name().replace("_", " "));
     }
 
     public static <T extends Enum<T>> boolean hasSensitiveValue(Class<T> enumType, String name) {
