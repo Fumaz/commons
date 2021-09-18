@@ -3,6 +3,8 @@ package dev.fumaz.commons.reflection;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.reflect.ClassPath;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,18 +31,25 @@ public final class Reflections {
     /**
      * Constructs an object from its class and arguments
      *
-     * @param clazz     the class of the object
-     * @param arguments the arguments for the constructor
-     * @param <T>       the type of the object
+     * @param clazz      the class of the object
+     * @param parameters the arguments for the constructor
+     * @param <T>        the type of the object
      * @return the constructed object
      */
-    public static <T> T construct(Class<T> clazz, Object... arguments) {
+    public static <T> T construct(Class<T> clazz, Object... parameters) {
         try {
-            Class<?>[] argumentArray = Arrays.stream(arguments)
+            Class<?>[] parameterTypes = Arrays.stream(parameters)
                     .map(Object::getClass)
                     .toArray(Class<?>[]::new);
 
-            return clazz.getDeclaredConstructor(argumentArray).newInstance(arguments);
+            Constructor<T> constructor = Reflections.getSuitableConstructor(clazz, parameterTypes, parameters);
+
+            if (constructor == null) {
+                throw new NoSuchMethodException("Couldn't find constructor for given parameters");
+            }
+
+            constructor.setAccessible(true);
+            return constructor.newInstance(parameters);
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new ReflectionException("Exception whilst fetching the method", e);
         } catch (IllegalAccessException | InstantiationException e) {
@@ -58,10 +67,17 @@ public final class Reflections {
      */
     public static <T> T construct(Class<T> clazz, Map<Class<?>, Object> arguments) {
         try {
-            Class<?>[] classes = arguments.keySet().toArray(new Class<?>[0]);
-            Object[] values = arguments.values().toArray();
+            Class<?>[] parameterTypes = arguments.keySet().toArray(new Class<?>[0]);
+            Object[] parameters = arguments.values().toArray();
 
-            return clazz.getDeclaredConstructor(classes).newInstance(values);
+            Constructor<T> constructor = Reflections.getSuitableConstructor(clazz, parameterTypes, parameters);
+
+            if (constructor == null) {
+                throw new NoSuchMethodException("Couldn't find constructor for given parameters");
+            }
+
+            constructor.setAccessible(true);
+            return constructor.newInstance(parameters);
         } catch (InvocationTargetException | NoSuchMethodException e) {
             throw new ReflectionException("Exception whilst fetching the method", e);
         } catch (IllegalAccessException | InstantiationException e) {
@@ -352,6 +368,35 @@ public final class Reflections {
     public static void invokeMethod(Object instance, String name, Object... arguments) {
         Method method = getMethod(instance, name);
         invokeMethod(instance, method, arguments);
+    }
+
+    private static <T> Constructor<T> getSuitableConstructor(Class<T> clazz, Class<?>[] parameterTypes, Object[] parameters) {
+        for (Constructor<?> declared : clazz.getDeclaredConstructors()) {
+            if (!checkParameters(declared, parameterTypes)) {
+                continue;
+            }
+
+            return (Constructor<T>) declared;
+        }
+
+        return null;
+    }
+
+    private static boolean checkParameters(Executable executable, Class<?>[] parameterTypes) {
+        Class<?>[] executableParameterTypes = executable.getParameterTypes();
+
+        // TODO: Add check for varargs
+        if (executableParameterTypes.length != parameterTypes.length) {
+            return false;
+        }
+
+        for (int i = 0; i < parameterTypes.length; i++) {
+            if (!parameterTypes[i].isAssignableFrom(executableParameterTypes[i])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }
