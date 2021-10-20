@@ -13,7 +13,7 @@ public class Strings {
             return string;
         }
 
-        String[] words = string.split(" ");
+        String[] words = string.toLowerCase().split(" ");
         StringBuilder builder = new StringBuilder();
 
         for (String word : words) {
